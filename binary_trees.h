@@ -26,6 +26,7 @@ typedef struct binary_tree_s avl_t;
 typedef struct binary_tree_s heap_t;
 
 /* Function prototypes */
+avl_t *avl_remove(avl_t *root, int value);
 avl_t *rebalance(avl_t *root);  /* This function is called in avl_remove */
 size_t binary_tree_height(const binary_tree_t *tree);
 binary_tree_t *binary_tree_node(binary_tree_t *parent, int value);
