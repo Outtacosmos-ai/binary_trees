@@ -26,6 +26,8 @@ typedef struct binary_tree_s avl_t;
 typedef struct binary_tree_s heap_t;
 
 /* Function prototypes */
+avl_t *rebalance(avl_t *root);  /* This function is called in avl_remove */
+size_t binary_tree_height(const binary_tree_t *tree);
 binary_tree_t *binary_tree_node(binary_tree_t *parent, int value);
 void binary_tree_print(const binary_tree_t *);
 binary_tree_t *binary_trees_ancestor(const binary_tree_t *first, const binary_tree_t *second);
@@ -50,5 +52,8 @@ heap_t *array_to_heap(int *array, size_t size);
 int heap_extract(heap_t **root);
 int *heap_to_sorted_array(heap_t *heap, size_t *size);
 void binary_tree_delete(binary_tree_t *tree);
+
+/* Add the declaration for rebalance here */
+avl_t *rebalance(avl_t *root);  /* This function is called in avl_remove */
 
 #endif /* BINARY_TREES_H */
