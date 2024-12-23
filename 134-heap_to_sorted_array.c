@@ -1,29 +1,62 @@
 #include "binary_trees.h"
+#include <stdlib.h>
 
 /**
- * heap_to_sorted_array - Converts a Binary Max Heap to a sorted array
- * @heap: Pointer to root node of heap
- * @size: Address to store size of array
- * Return: Pointer to array sorted in descending order
+ * tree_size - Measures the total number of nodes in a binary tree.
+ * @tree: Pointer to the root node of the tree to measure the size.
+ *
+ * Return: The total number of nodes in the tree, or 0 if tree is NULL.
+ */
+size_t tree_size(const binary_tree_t *tree)
+{
+	size_t left_size = 0;
+	size_t right_size = 0;
+
+	if (!tree)
+		return (0);
+
+	/* Recursively calculate the size of the left subtree */
+	if (tree->left)
+		left_size = tree_size(tree->left);
+
+	/* Recursively calculate the size of the right subtree */
+	if (tree->right)
+		right_size = tree_size(tree->right);
+
+	/* Return the sum of left and right subtree sizes plus the current node */
+	return (left_size + right_size + 1);
+}
+
+/**
+ * heap_to_sorted_array - Converts a Binary Max Heap into a sorted array.
+ * @heap: Pointer to the root node of the heap to convert.
+ * @size: Address to store the size of the resulting array.
+ *
+ * Return: Pointer to an array sorted in descending order, or NULL if memory
+ * allocation fails.
  */
 int *heap_to_sorted_array(heap_t *heap, size_t *size)
 {
-	int *array;
-	size_t heap_size;
-	size_t i;
+	int index = 0;
+	int *sorted_array = NULL;
 
 	if (!heap || !size)
 		return (NULL);
 
-	heap_size = binary_tree_size(heap);
-	*size = heap_size;
+	/* Determine the total number of nodes in the heap */
+	*size = tree_size(heap);
 
-	array = malloc(heap_size * sizeof(int));
-	if (!array)
+	/* Allocate memory for the sorted array */
+	sorted_array = malloc(sizeof(int) * (*size));
+	if (!sorted_array)
 		return (NULL);
 
-	for (i = 0; i < heap_size; i++)
-		array[i] = heap_extract(&heap);
+	/* Extract the maximum element from the heap and store it in the array */
+	while (heap)
+	{
+		sorted_array[index] = heap_extract(&heap);
+		index++;
+	}
 
-	return (array);
+	return (sorted_array);
 }
