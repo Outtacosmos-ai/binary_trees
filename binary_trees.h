@@ -26,6 +26,8 @@ typedef struct binary_tree_s avl_t;
 typedef struct binary_tree_s heap_t;
 
 /* Function prototypes */
+void binary_tree_delete(binary_tree_t *tree);
+heap_t *array_to_heap(int *array, size_t size);
 heap_t *heap_insert(heap_t **root, int value); /* Insert value into Max Binary Heap */
 heap_t *create_new_node(heap_t *parent, int value); /* Create a new node */
 heap_t *find_insertion_parent(heap_t *root, size_t size); /* Find insertion point */

@@ -1,116 +1,101 @@
 #include "binary_trees.h"
-#include <math.h>  /* Include this for log2() */
 
 /**
- * create_new_node - Creates a new binary tree node.
- * @parent: Pointer to the parent node.
- * @value: Value to store in the new node.
- *
- * Return: Pointer to the new node, or NULL on failure.
- */
-heap_t *create_new_node(heap_t *parent, int value)
+	* swap - Swaps two integers
+	* @a: First integer
+	* @b: Second integer
+	*/
+void swap(int *a, int *b)
 {
-	heap_t *new_node = binary_tree_node(parent, value);
-
-	return (new_node);
+	int temp = *a;
+	*a = *b;
+	*b = temp;
 }
 
 /**
- * binary_tree_size - Calculates the size of a binary tree.
- * @tree: Pointer to the root node of the tree.
- *
- * Return: Size of the tree.
- */
-size_t binary_tree_size(const heap_t *tree)
+	* size - Measures size of binary tree
+	* @tree: Pointer to root
+	* Return: Size of tree
+	*/
+size_t size(const binary_tree_t *tree)
 {
 	if (!tree)
-		return (0);
-	return (1 + binary_tree_size(tree->left) + binary_tree_size(tree->right));
+	return (0);
+	return (1 + size(tree->left) + size(tree->right));
 }
 
 /**
- * find_insertion_parent - Finds the insertion parent in a Max Binary Heap.
- * @root: Pointer to the root node of the tree.
- * @size: Size of the binary tree.
- *
- * Return: Pointer to the parent node for insertion.
- */
-heap_t *find_insertion_parent(heap_t *root, size_t size)
+	* insert_node - Inserts node at proper position
+	* @root: Root of heap
+	* @level: Level to insert node
+	* @pos: Position at level
+	* @node: Node to insert
+	* Return: 1 if inserted, 0 if not
+	*/
+int insert_node(heap_t *root, size_t level, size_t pos, heap_t *node)
 {
-	heap_t *parent = root;
-	size_t path = size + 1;
-	size_t mask = 1;
-
-	/* Use log2 to calculate the highest bit */
-	while (mask <= size)
+	if (level == 1)
 	{
-		mask <<= 1;
+	if (pos == 0 && !root->left)
+	{
+	root->left = node;
+	node->parent = root;
+	return (1);
+	}
+	if (pos == 1 && !root->right)
+	{
+	root->right = node;
+	node->parent = root;
+	return (1);
+	}
+	return (0);
 	}
 
-	while (mask > 1)
-	{
-		mask >>= 1;
-		if (path & mask)
-			parent = parent->right;
-		else
-			parent = parent->left;
-	}
-
-	return (parent);
+	if (root->left && insert_node(root->left, level - 1, pos / 2, node))
+	return (1);
+	if (root->right && insert_node(root->right, level - 1, pos / 2, node))
+	return (1);
+	return (0);
 }
 
 /**
- * bubble_up - Maintains Max Heap property after insertion.
- * @node: Pointer to the newly inserted node.
- */
-void bubble_up(heap_t *node)
-{
-	int tmp;
-
-	while (node->parent && node->n > node->parent->n)
-	{
-		tmp = node->n;
-		node->n = node->parent->n;
-		node->parent->n = tmp;
-		node = node->parent;
-	}
-}
-
-/**
- * heap_insert - Inserts a value into a Max Binary Heap.
- * @root: Double pointer to the root node of the Heap.
- * @value: Value to store in the node to be inserted.
- *
- * Return: Pointer to the inserted node, or NULL on failure.
- */
+	* heap_insert - Inserts value in Max Binary Heap
+	* @root: Double pointer to root
+	* @value: Value to insert
+	* Return: Pointer to inserted node
+	*/
 heap_t *heap_insert(heap_t **root, int value)
 {
-	heap_t *parent, *new_node;
-	size_t size;
+	heap_t *node;
+	size_t tree_size, level, pos;
+	int inserted = 0;
 
 	if (!root)
-		return (NULL);
+	return (NULL);
+
+	node = binary_tree_node(NULL, value);
+	if (!node)
+	return (NULL);
 
 	if (!*root)
 	{
-		*root = create_new_node(NULL, value);
-		return (*root);
+	*root = node;
+	return (node);
 	}
 
-	size = binary_tree_size(*root);
+	tree_size = size(*root);
+	for (level = 1; !inserted; level++)
+	{
+	for (pos = 0; pos < (size_t)(1 << (level - 1)) && !inserted; pos++)
+	if (tree_size < (size_t)((1 << level) - 1))
+	inserted = insert_node(*root, level, pos, node);
+	}
 
-	parent = find_insertion_parent(*root, size);
+	while (node->parent && node->n > node->parent->n)
+	{
+	swap(&node->n, &node->parent->n);
+	node = node->parent;
+	}
 
-	new_node = create_new_node(parent, value);
-	if (!new_node)
-		return (NULL);
-
-	if (parent->left == NULL)
-		parent->left = new_node;
-	else
-		parent->right = new_node;
-
-	bubble_up(new_node);
-
-	return (new_node);
+	return (node);
 }

@@ -1,29 +1,4 @@
 #include "binary_trees.h"
-#include <stdlib.h>
-
-/**
- * swap - Swaps two integers
- * @a: First integer
- * @b: Second integer    
- */
-void swap(int *a, int *b)
-{
-    int temp = *a;
-    *a = *b;
-    *b = temp;
-}
-
-/**
- * heap_size - Measures the size of a binary tree
- * @tree: Pointer to the root node of the tree to measure the size
- * Return: Size of the tree, 0 if tree is NULL
- */
-size_t heap_size(const binary_tree_t *tree)
-{
-    if (!tree)
-        return (0);
-    return (1 + heap_size(tree->left) + heap_size(tree->right));
-}
 
 /**
  * get_last_node - Gets the last level-order node of a heap
@@ -32,22 +7,22 @@ size_t heap_size(const binary_tree_t *tree)
  */
 heap_t *get_last_node(heap_t *root)
 {
-    size_t size = heap_size(root);
-    size_t bit;
-    heap_t *node = root;
+	size_t size = heap_size(root);
+	size_t bit;
+	heap_t *node = root;
 
-    for (bit = 1UL << (sizeof(size_t) * 8 - 2); bit > 1; bit >>= 1)
-    {
-        if (size & bit)
-            node = node->right;
-        else
-            node = node->left;
+	for (bit = 1 << (sizeof(size_t) * 8 - 2); bit > 1; bit >>= 1)
+	{
+		if (size & bit)
+			node = node->right;
+		else
+			node = node->left;
 
-        if (!node)
-            break;
-    }
+		if (!node)
+			break;
+	}
 
-    return (node);
+	return (node);
 }
 
 /**
@@ -56,23 +31,26 @@ heap_t *get_last_node(heap_t *root)
  */
 void sift_down(heap_t *root)
 {
-    heap_t *node = root, *child;
+	heap_t *node = root, *child;
+	int temp;
 
-    while (1)
-    {
-        if (!node->left)
-            break;
+	while (1)
+	{
+		if (!node->left)
+			break;
 
-        child = node->left;
-        if (node->right && node->right->n > node->left->n)
-            child = node->right;
+		child = node->left;
+		if (node->right && node->right->n > node->left->n)
+			child = node->right;
 
-        if (node->n >= child->n)
-            break;
+		if (node->n >= child->n)
+			break;
 
-        swap(&node->n, &child->n);
-        node = child;
-    }
+		temp = node->n;
+		node->n = child->n;
+		child->n = temp;
+		node = child;
+	}
 }
 
 /**
@@ -82,33 +60,32 @@ void sift_down(heap_t *root)
  */
 int heap_extract(heap_t **root)
 {
-    int value;
-    heap_t *last_node, *heap_root;
+	int value;
+	heap_t *last_node, *heap_root;
 
-    if (!root || !*root)
-        return (0);
+	if (!root || !*root)
+		return (0);
 
-    heap_root = *root;
-    value = heap_root->n;
+	heap_root = *root;
+	value = heap_root->n;
 
-    if (!heap_root->left && !heap_root->right)
-    {
-        free(heap_root);
-        *root = NULL;
-        return (value);
-    }
+	if (!heap_root->left && !heap_root->right)
+	{
+		free(heap_root);
+		*root = NULL;
+		return (value);
+	}
 
-    last_node = get_last_node(heap_root);
+	last_node = get_last_node(heap_root);
 
-    heap_root->n = last_node->n;
-    if (last_node->parent->right == last_node)
-        last_node->parent->right = NULL;
-    else
-        last_node->parent->left = NULL;
+	heap_root->n = last_node->n;
+	if (last_node->parent->right == last_node)
+		last_node->parent->right = NULL;
+	else
+		last_node->parent->left = NULL;
 
-    free(last_node);
-    sift_down(heap_root);
+	free(last_node);
+	sift_down(heap_root);
 
-    return (value);
+	return (value);
 }
-
