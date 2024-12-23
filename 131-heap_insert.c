@@ -1,61 +1,79 @@
 #include "binary_trees.h"
 
-/**
- * get_size - Gets size of binary tree
- * @tree: Pointer to tree
- * Return: Size of tree
- */
-size_t get_size(const binary_tree_t *tree)
-{
-	if (!tree)
-		return (0);
-	return (1 + get_size(tree->left) + get_size(tree->right));
-}
+size_t binary_tree_size(const binary_tree_t *tree);
 
 /**
- * heap_insert - Inserts value in Max Binary Heap
- * @root: Double pointer to root
- * @value: Value to store
- * Return: Created node
+ * heap_insert - Inserts a value in Max Binary Heap.
+ * @root: A double pointer to the root node of the heap to insert the value.
+ * @value: The value to store in the node to be inserted.
+ *
+ * Return: A pointer to the created node, or NULL on failure.
  */
 heap_t *heap_insert(heap_t **root, int value)
 {
-	heap_t *new, *current;
-	int tmp;
-	size_t size, i;
+	heap_t *tree, *new, *flip;
+	int size, leaves, sub, bit, level, tmp;
 
 	if (!root)
-		return (NULL);
-	if (!*root)
-		return (*root = binary_tree_node(NULL, value));
-
-	current = *root;
-	size = get_size(*root);
-	for (i = 1; i <= size / 2; i = i * 2)
 	{
-		if ((size + 1) & i)
-			current = current->right;
-		else
-			current = current->left;
-		if (!current)
-			break;
+		return (NULL);
 	}
-
-	new = binary_tree_node(current, value);
-	if (!new)
-		return (NULL);
-
-	if (!current->left)
-		current->left = new;
-	else
-		current->right = new;
-
-	while (new->parent && new->n > new->parent->n)
+	if (!(*root))
 	{
-		tmp = new->n;
-		new->n = new->parent->n;
-		new->parent->n = tmp;
+		return (*root = binary_tree_node(NULL, value));
+	}
+	tree = *root;
+	size = binary_tree_size(tree);
+	leaves = size;
+
+	/* Calculate the level and leaves */
+	for (level = 0, sub = 1; leaves >= sub; sub *= 2, level++)
+		leaves -= sub;
+
+	/* Subtract all nodes except for bottom-most level */
+	for (bit = 1 << (level - 1); bit != 1; bit >>= 1)
+	{
+		tree = leaves & bit ? tree->right : tree->left;
+	}
+	/*
+	 * Traverse tree to first empty slot based on the binary
+	 * representation of the number of leaves.
+	 * Example -
+	 * If there are 12 nodes in a complete tree, there are 5 leaves on
+	 * the 4th tier of the tree. 5 is 101 in binary. 1 corresponds to
+	 * right, 0 to left.
+	 * The first empty node is 101 == RLR, *root->right->left->right.
+	 */
+
+	/* Create the new node */
+	new = binary_tree_node(tree, value);
+	leaves & 1 ? (tree->right = new) : (tree->left = new);
+
+	/* Flip values with parent until parent value exceeds new value */
+	flip = new;
+	for (; flip->parent && (flip->n > flip->parent->n); flip = flip->parent)
+	{
+		tmp = flip->n;
+		flip->n = flip->parent->n;
+		flip->parent->n = tmp;
 		new = new->parent;
 	}
+
 	return (new);
+}
+
+/**
+ * binary_tree_size - Measures the size of a binary tree.
+ * @tree: Tree to measure the size of.
+ *
+ * Return: Size of the tree, or 0 if tree is NULL.
+ */
+size_t binary_tree_size(const binary_tree_t *tree)
+{
+	if (!tree)
+	{
+		return (0);
+	}
+
+	return (binary_tree_size(tree->left) + binary_tree_size(tree->right) + 1);
 }
